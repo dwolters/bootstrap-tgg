@@ -1,0 +1,56 @@
+[
+    {
+        "sourceMetamodelFile": "metamodels/Families.msl",
+        "targetMetamodelFile": "metamodels/Persons.msl",
+        "mappingFile": "mappings/FamilyToPerson.etb",
+        "outputFile": "FamilyToPerson.msl"
+    },
+    {
+        "sourceMetamodelFile": "metamodels/Rectangles.msl",
+        "targetMetamodelFile": "metamodels/Composite.msl",
+        "mappingFile": "mappings/RectanglesToComposite.etb",
+        "outputFile": "RectanglesToComposite.msl"
+    },
+    {
+        "sourceMetamodelFile": "metamodels/SimpleDoc.msl",
+        "targetMetamodelFile": "metamodels/SimpleJava.msl",
+        "mappingFile": "mappings/DocToJava.etb",
+        "outputFile": "DocToJava.msl"
+    },
+    {
+        "sourceMetamodelFile": "metamodels/ClassInheritanceHierarchy.msl",
+        "targetMetamodelFile": "metamodels/Database.msl",
+        "mappingFile": "mappings/ClassToDB.etb",
+        "outputFile": "ClassToDB.msl"
+    },
+    {
+        "sourceMetamodelFile": "metamodels/MiroMetamodel.msl",
+        "targetMetamodelFile": "metamodels/UseCaseDiagramMetamodel.msl",
+        "mappingFile": "mappings/MiroToUCD.etb",
+        "outputFile": "MiroToUCD.msl"
+    },
+    {
+        "sourceMetamodelFile": "metamodels/Company.msl",
+        "targetMetamodelFile": "metamodels/IT.msl",
+        "mappingFile": "mappings/CompanyToIT.etb",
+        "outputFile": "CompanyToIT.msl"
+    },
+    {
+        "sourceMetamodelFile": "metamodels/Facebook.msl",
+        "targetMetamodelFile": "metamodels/Instagram.msl",
+        "mappingFile": "mappings/FacebookToInstagram.etb",
+        "outputFile": "FacebookToInstagram.msl"
+    },
+    {
+        "sourceMetamodelFile": "metamodels/Requirements.msl",
+        "targetMetamodelFile": "metamodels/Architecture.msl",
+        "mappingFile": "mappings/RequirementsCoverage.etb",
+        "outputFile": "RequirementsCoverage.msl"
+    },
+    {
+        "sourceMetamodelFile": "metamodels/MiroSimple.msl",
+        "targetMetamodelFile": "metamodels/PEPMLSimple.msl",
+        "mappingFile": "mappings/MiroToPEPMLSimple.etb",
+        "outputFile": "MiroToPEPMLSimple.msl"
+    }
+]

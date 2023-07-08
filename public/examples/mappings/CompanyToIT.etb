@@ -1,0 +1,12 @@
+Company{-ceo->+} <=> IT
+.name <=> .name
+
+Employee{<-employee-CEO} <=> PC
+.name <=> .name
+
+Employee{<-employee-CEO} <=> Laptop
+.name <=> .name
+
+Admin{-ceo} <=> Router
+.name <=> .name
+.name <=> -network->Network.name

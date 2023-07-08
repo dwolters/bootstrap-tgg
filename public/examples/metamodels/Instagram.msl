@@ -1,0 +1,12 @@
+metamodel Instagram {
+	Network2 {
+		.description : EString
+		<+>-users(0..*)->User2
+	}
+	
+	User2 {
+		.name : EString
+		-follows(0..*)->User2
+	}
+ 	
+}

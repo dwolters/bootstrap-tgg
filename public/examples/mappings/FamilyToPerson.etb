@@ -1,0 +1,13 @@
+FamilyRegister <=> PersonRegister
+
+FamilyMember{<-daughters-?} <=> Female
+.name <=> .name
+
+FamilyMember{<-sons-?} <=SonToMale=> Male
+.name <=> .name
+
+FamilyMember{<-mother-?} <=MotherToFemale=> Female
+.name <=> .name
+
+FamilyMember{<-father-?} <=> Male
+.name <=> .name

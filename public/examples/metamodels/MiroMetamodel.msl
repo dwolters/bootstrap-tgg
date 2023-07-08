@@ -1,0 +1,76 @@
+metamodel Miro {
+	Board {
+		.id: EString
+		<+>-items(0..*)->Item
+	}
+	abstract Item {
+		.id : EString
+		-connectedTo(0..*)->Item {
+			.startCap: EString
+			.endCap: EString
+		}
+	}
+	abstract GeometricItem : Item {
+		.x: EDouble
+		.y: EDouble
+		.width: EDouble
+		.height: EDouble
+		.type: EString
+		.isArea: EBoolean
+		.borderStyle: EString
+		-contains(0..*)->GeometricItem {
+			.area: EString
+		}
+		-southOf(0..*)->GeometricItem
+		-surroundedBy(0..*)->GeometricItem {
+			.area: EString
+		}
+	}
+	abstract ContentItem : GeometricItem {
+		.content: EString
+	}
+	abstract Shape : ContentItem {
+		.rotation: EInt
+	}
+	Rectangle: Shape
+	RoundedRectangle: Shape
+	Circle: Shape
+	Text : ContentItem {
+		.rotation: EInt
+	}
+	StickyNote : ContentItem
+	Image : GeometricItem {
+		.url: EString
+		.title: EString
+		.rotation: EInt
+	}
+	Frame : GeometricItem {
+		<>-children(0..*)->GeometricItem
+	}
+	enum CONTAINMENT_AREA {
+		ANY
+		LEFT
+		TOP
+		RIGHT
+		BOTTOM
+		TOP_LEFT
+		TOP_RIGHT
+		BOTTOM_LEFT
+		BOTTOM_RIGHT
+	}
+	enum SURROUNDING_AREA {
+		ANY
+		LEFT
+		TOP
+		RIGHT
+		BOTTOM
+		NORTH_WEST
+		NORTH
+		NORTH_EAST
+		EAST
+		SOUTH_EAST
+		SOUTH
+		SOUTH_WEST
+		WEST
+	}
+}

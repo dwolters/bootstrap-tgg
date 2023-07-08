@@ -1,0 +1,14 @@
+metamodel Persons {
+	PersonRegister {
+		<+>-persons(0..*)->Person
+	}
+	
+	abstract Person {
+		.name : EString
+		.birthday : EDate
+	}
+	
+	Male : Person
+	
+	Female : Person
+}

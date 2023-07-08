@@ -1,0 +1,5 @@
+ArchElt <=> Component
+.id <=> .id
+
+ArchElt <=> Port
+.id <=> .id

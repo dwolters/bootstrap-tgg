@@ -1,0 +1,18 @@
+Diagram <=> Board
+-useCases <=> -items
+-systems <=> -items
+-actors <=> -items
+
+UseCase <=> Circle
+.name <=> .content
+.isOptional <=> .borderStyle
+[true="solid", false="dashed"]
+
+Actor <=> Image {.title = ["actor","person"]}
+//Actor <=> Image {.title = "actor"}
+.name <=> -surroundedBy{.area=SOUTH}->Text.content
+-involvedIn <=> -connectedTo
+
+System <=> Rectangle
+.name <=> .content
+-useCases <=> -contains

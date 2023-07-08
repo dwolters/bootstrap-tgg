@@ -1,0 +1,42 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true,
+        "node": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+        "standard-with-typescript",
+        "plugin:vue/vue3-essential"
+    ],
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module",
+        "project": [
+            "./tsconfig.json"
+        ]
+    },
+    "plugins": [
+        "vue"
+    ],
+    "ignorePatterns": ["src/parser/*.js", "src/templates/*.js","lib/*"],
+    "rules": {
+        "@typescript-eslint/strict-boolean-expressions": 0,
+        "@typescript-eslint/prefer-nullish-coalescing": 0,
+        "@typescript-eslint/restrict-plus-operands": 0,
+        //Only use single quotes
+        "curly": [
+          "error",
+          "all"
+        ],
+        "quotes": [
+          "error",
+          "single"
+        ],
+        "max-len": [
+          "error",
+          250
+        ],
+        "eqeqeq": 0
+    }
+}

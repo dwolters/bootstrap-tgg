@@ -1,0 +1,9 @@
+metamodel CompositePattern {
+	abstract Component {
+		.name: EString 
+	}
+	Composite : Component {
+		<>-children(1..*)->Component
+	}
+	Leaf : Component
+}

@@ -1,0 +1,4 @@
+Rectangle <=> Leaf
+
+Rectangle <=> Composite
+-contains <=> -children

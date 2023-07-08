@@ -1,0 +1,8 @@
+Folder <=> Package
+.name <=> .name
+-docs->.name <=> .name
+-subFolders <=> -subPackages
+-docs <=> -clazzes
+
+Doc <=> Clazz
+.name <=> .name

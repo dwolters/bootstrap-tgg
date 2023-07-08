@@ -1,0 +1,14 @@
+:set=Board.items;
+:root=Board,EducationProgramme;
+
+Shape{.shape="Circle"} <=Circle2Topic=> Topic
+.firstParagraph <=> .name
+.borderStyle <=> .isOptional
+["dashed"=true,"solid"=true]
+
+Image{.title="educator"} <=> Educator
+-surroundedBy{.area=SOUTH}->Text.firstParagraph <=> .name
+-connectedTo <=> -familiarWith
+
+Board <=> EducationProgramme
+-items <=> -entities

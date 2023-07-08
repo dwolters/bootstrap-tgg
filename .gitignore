@@ -1,0 +1,6 @@
+node_modules/
+lib/*
+public/bundle.js
+src/parsers/*.js
+src/templates/*.js
+config/*.json

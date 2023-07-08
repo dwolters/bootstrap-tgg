@@ -1,0 +1,15 @@
+metamodel PEPML {
+    EducationProgramme {
+        -entities(0..*)->Entity
+    }
+    Entity {
+        .name: EString
+        .description: EString
+    }
+    Topic : Entity {
+        .isOptional: EBoolean
+    }
+    Educator : Entity {
+        -familiarWith(0..*)->Topic
+    }
+}

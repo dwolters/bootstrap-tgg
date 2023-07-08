@@ -1,0 +1,6 @@
+metamodel Rectangles {
+	Rectangle {
+		.name : EString
+		-contains(0..*)->Rectangle
+	}
+}

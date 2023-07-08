@@ -1,0 +1,10 @@
+ClassPackage <=> DB
+.name <=> .title
+
+Clazz{-package->ClassPackage} <=> Table
+.name <=> .heading
+
+Attribute <=> Column
+.name <=> .name
+
+Clazz!{<-superClass-Clazz+} <=SubClassToTable=> Table!

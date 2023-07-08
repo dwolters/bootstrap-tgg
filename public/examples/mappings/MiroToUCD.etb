@@ -1,0 +1,17 @@
+Board <=> Diagram
+-items <=> -useCases
+-items <=> -systems
+-items <=> -actors
+
+Circle <=> UseCase
+.content <=> .name
+.borderStyle <=> .isOptional
+["normal"=true, "dashed"=false]
+
+Image {.title="actor"} <=> Actor
+-surroundedBy{.area=SOUTH}->Text.content <=> .name
+-connectedTo <=> -involvedIn
+
+Rectangle <=> System
+.content <=> .name
+-contains <=> -useCases

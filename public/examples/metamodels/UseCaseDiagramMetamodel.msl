@@ -1,0 +1,19 @@
+metamodel UseCaseDiagram {
+	Diagram {
+		<+>-useCases(0..*)->UseCase
+		<+>-actors(0..*)->Actor
+		<+>-systems(0..*)->System
+	}
+	UseCase {
+		.name: EString 
+		.isOptional: EBoolean
+	}
+	Actor {
+		.name: EString
+		-involvedIn(0..*)->UseCase
+	}
+	System { //Rectangle
+		.name: EString
+		<+>-useCases(0..*)->UseCase
+	}
+}
