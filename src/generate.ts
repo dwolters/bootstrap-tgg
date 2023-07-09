@@ -4,6 +4,7 @@ import * as path from 'path'
 import { readFileSync } from 'node:fs'
 import jsonfile from 'jsonfile'
 import config from 'config'
+import NameGenerator from './classes/NameGenerator'
 
 const mappingIndex = jsonfile.readFileSync(path.join(config.get('sourceFolder'), 'index.json'))
 
@@ -17,6 +18,7 @@ const mappingFiles = mappingIndex.map(entry => {
 })
 
 mappingFiles.forEach(testMapping => {
+  NameGenerator.clearAll()
   const { sourceMetamodelFile, targetMetamodelFile, mappingFile, outputFile } = testMapping
   const mappingStr = readFileSync(mappingFile).toString()
   const sourceMetamodelStr = readFileSync(sourceMetamodelFile).toString()

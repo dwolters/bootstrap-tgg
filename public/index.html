@@ -176,9 +176,9 @@
             watch: {
                 async selectedName(newValue) {
                     let dataEntry = this.data.find(e => e.name == newValue);
-                    this.sourceMetamodel = await this.fetchDataFile('examples/metamodels/' + dataEntry.sourceMetamodelFile + '.msl');
-                    this.targetMetamodel = await this.fetchDataFile('examples/metamodels/' + dataEntry.targetMetamodelFile + '.msl');
-                    this.mapping = await this.fetchDataFile('examples/mappings/' + dataEntry.mappingFile + '.etb');
+                    this.sourceMetamodel = await this.fetchDataFile('examples/' + dataEntry.sourceMetamodelFile);
+                    this.targetMetamodel = await this.fetchDataFile('examples/' + dataEntry.targetMetamodelFile);
+                    this.mapping = await this.fetchDataFile('examples/' + dataEntry.mappingFile);
                     this.generate();
                 }
             },
@@ -209,7 +209,7 @@
                     localStorage.setItem('mapping', this.mapping);
                 });
                 this.data = JSON.parse(await this.fetchDataFile('examples/index.json'));
-                this.names = this.data.map(obj => obj.name);
+                this.names = this.data.map(obj => obj.name).sort();
             }
         });
 

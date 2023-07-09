@@ -1,0 +1,13 @@
+metamodel PetriNet {
+    PetriNet {
+        .id: EString
+        <+>-places(0..*)->Place
+    }
+    Place {
+        .id: EString
+        .tokenNo: EInt
+        -to(0..*)->Place{
+            .input: EString
+        }
+    }
+}

@@ -31,23 +31,22 @@ export default class MappingProcessor {
     options.forEach(option => {
       switch (option.name) {
         case 'set':
-          option.values.forEach(e => {
+          this.tgg.options.set = option.values.map(e => {
+            if (!e.includes('.')) {
+              throw new Error(`Value ${e} for option set does not follow the pattern Class.Assocation`)
+            }
             const [sourceClass, associationName] = e.split('.')
-            const association = this.tgg.sourceMetamodel.getAssociation(sourceClass, associationName, true) || this.tgg.targetMetamodel.getAssociation(sourceClass, associationName)
-            const targetClass = association.target
-            const name = `${sourceClass}_${associationName}IsSet`
-            const patternName = `NoDouble${targetClass}In${sourceClass}_${associationName}`
-            this.tgg.addConstraint({ type: 'ForbidContraint', name, patternName })
-            this.tgg.addPattern({ type: 'SetPattern', name: patternName, associationName, sourceClass, targetClass })
+            return { sourceClass, associationName }
           })
           return
         case 'root':
-          option.values.forEach(className => {
-            const name = `Single${className}`
-            const patternName = `NoDouble${className}`
-            this.tgg.addConstraint({ type: 'ForbidContraint', name, patternName })
-            this.tgg.addPattern({ type: 'RootPattern', name: patternName, class: className })
-          })
+          this.tgg.options.root = option.values
+          return
+        case 'disableCompositionAugmentation':
+          this.tgg.options.disableCompositionAugmentation = true
+          return
+        case 'disableLowerBoundAugmentation':
+          this.tgg.options.disableLowerBoundAugmentation = true
           return
         case 'excludeRules':
         case 'includeRules':
@@ -60,8 +59,8 @@ export default class MappingProcessor {
         case 'keepCompositionRules':
           this.tgg.options.keepCompositionRules = true
           return
-        case 'noConstraints':
-          this.tgg.options.noConstraints = true
+        case 'constraints':
+          this.tgg.options.constraints = option.values
       }
     })
   }
@@ -71,9 +70,10 @@ export default class MappingProcessor {
       const sourceClassName = mapping.source
       const targetClassName = mapping.target
       const ruleName = mapping.name = NameGenerator.generateRuleNameForClassMapping(mapping)
+      const correspondenceName = mapping.correspondenceName = mapping.correspondenceName || ruleName
       if (!this.tgg.sourceMetamodel.hasClass(sourceClassName)) { throw new Error('Unknown class of source metamodel: ' + sourceClassName) }
       if (!this.tgg.targetMetamodel.hasClass(targetClassName)) { throw new Error('Unknown class of target metamodel: ' + targetClassName) }
-      this.tgg.addCorrespondence(sourceClassName, targetClassName, ruleName)
+      this.tgg.addCorrespondence(sourceClassName, targetClassName, correspondenceName)
     })
   }
 
@@ -83,6 +83,7 @@ export default class MappingProcessor {
       const sourceClassName = mapping.source
       const targetClassName = mapping.target
       const ruleName = mapping.name
+      const correspondenceName = mapping.correspondenceName
 
       const rule = new Rule(ruleName, this.tgg)
       const sourceCreate = rule.modifierToCreate(mapping.sourceModifier || Modifier.create, sourceClassName)
@@ -91,7 +92,7 @@ export default class MappingProcessor {
       const targetCreate = rule.modifierToCreate(mapping.targetModifier || Modifier.create, targetClassName)
       const targetObject = rule.createTargetObject(targetClassName, targetCreate, true)
       targetObject.isOrigin = true
-      rule.addCorrespondenceObject(ruleName, sourceObject, targetObject, true)
+      rule.addCorrespondenceObject(correspondenceName, sourceObject, targetObject, true)
       sourceObject.addPattern(mapping.sourcePattern)
       targetObject.addPattern(mapping.targetPattern)
 
@@ -138,8 +139,8 @@ export default class MappingProcessor {
       }
 
       const variable = sourceVariable ||
-                targetVariable ||
-                NameGenerator.generateVariableName(source, target, rule.name)
+        targetVariable ||
+        NameGenerator.generateVariableName(source, target, rule.name)
 
       if (!sourceVariable) { sourceObject.setAttributeVariable(source, variable) }
       if (!targetVariable) { targetObject.setAttributeVariable(target, variable) }
@@ -163,7 +164,7 @@ export default class MappingProcessor {
     if (!associatedAttribute.targetClass) { associatedAttribute.targetClass = targetObject.getMetamodel().getAssociation(targetObject.class, associatedAttribute.associationName).target }
 
     const correspondenceName = rule.name + '_' + associatedAttribute.targetClass
-    const associatedObject: RuleObject = rule.createObjectForAssociationPattern(associatedAttribute, targetObject, Modifier.create)
+    const associatedObject: RuleObject = rule.createObjectForAssociationPattern(associatedAttribute, targetObject, false, Modifier.create)
     if (reversed) {
       this.tgg.addCorrespondence(associatedObject.class, sourceObject.class, correspondenceName)
       rule.addCorrespondenceObject(correspondenceName, associatedObject, sourceObject, associatedObject.create)
@@ -187,10 +188,10 @@ export default class MappingProcessor {
 
     const variable = NameGenerator.generateVariableName(source.targetAttribute, target.targetAttribute, rule.name)
 
-    const sourceChildObject = rule.createObjectForAssociationPattern(source, sourceObject, Modifier.create)
+    const sourceChildObject = rule.createObjectForAssociationPattern(source, sourceObject, false, Modifier.create)
     sourceChildObject.inCorrespondence = true
     sourceChildObject.setAttributeVariable(source.targetAttribute, variable)
-    const targetChildObject = rule.createObjectForAssociationPattern(target, targetObject, Modifier.create)
+    const targetChildObject = rule.createObjectForAssociationPattern(target, targetObject, false, Modifier.create)
     targetChildObject.inCorrespondence = true
     targetChildObject.setAttributeVariable(target.targetAttribute, variable)
 
@@ -217,10 +218,16 @@ export default class MappingProcessor {
       const sourceParentObject = newRule.createSourceObject(sourceObject.class, false, true)
       sourceParentObject.isOrigin = true
       const sourceChildObject = newRule.createSourceObject(correspondence.sourceClass, false, true)
+      if (sourceAssociation.targetPattern) {
+        sourceChildObject.addPattern(sourceAssociation.targetPattern, true)
+      }
       sourceParentObject.addObjectAssociationWithObject(sourceAssociation.associationName, sourceAssociation.associationPattern, sourceChildObject, true)
       const targetParentObject = newRule.createTargetObject(targetObject.class, false, true)
       targetParentObject.isOrigin = true
       const targetChildObject = newRule.createTargetObject(correspondence.targetClass, false, true)
+      if (targetAssociation.targetPattern) {
+        targetChildObject.addPattern(targetAssociation.targetPattern, true)
+      }
       targetParentObject.addObjectAssociationWithObject(targetAssociation.associationName, targetAssociation.associationPattern, targetChildObject, true)
       newRule.addCorrespondenceObject(rule.name, sourceParentObject, targetParentObject, false)
       newRule.addCorrespondenceObject(correspondence.name, sourceChildObject, targetChildObject, false)

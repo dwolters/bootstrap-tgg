@@ -1,0 +1,13 @@
+StateMachine <=> PetriNet
+.id <=> .id
+
+State{.isStart=false.isEnd=false} <=:State2Place=> Place{.tokenNo=0}
+.id <=> .id
+
+State{.isStart=true.isEnd=false} <=:State2Place=> Place{.tokenNo=1}
+.id <=> .id
+
+StateTransition <=> Transition
+.input <=> .input
+-from <=> -from
+-to <=> -to

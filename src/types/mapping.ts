@@ -16,6 +16,7 @@ export interface MappingOption {
 
 export interface ClassMapping {
   name?: string
+  correspondenceName?: string
   source: string
   sourcePattern?: Pattern
   sourceModifier: Modifier

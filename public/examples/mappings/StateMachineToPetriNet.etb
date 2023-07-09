@@ -1,0 +1,12 @@
+StateMachine <=> PetriNet
+.id <=> .id
+
+State{.isStart=false.isEnd=false} <=:State2Place=> Place{.tokenNo=0}
+.id <=> .id
+-to->{.isStart=false} <=> -to
+
+State{.isStart=true.isEnd=false} <=:State2Place=> Place{.tokenNo=1}
+.id <=> .id
+
+State{.isStart=false.isEnd=true} <=:State2Place=> Place{.tokenNo=0}
+.id <=> .id

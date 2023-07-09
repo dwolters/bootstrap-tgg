@@ -12,8 +12,8 @@
 MAPPING = options:OPTION* classMapping:CLASS_MAPPING+ {return {options,classMapping}}
 OPTION = _ ':' name:STRICT_ID  values:(_ '=' _ @OPTION_VALUE ';')? {return {name, values}}
 OPTION_VALUE = value:COMPOSITE_ID tail:(_ ',' _ @COMPOSITE_ID)* {return (Array.isArray(tail) && tail.length > 0 ? [value, ...tail] : [value])}
-CLASS_MAPPING = source:ID sourceModifier:MODIFIER? sourcePattern:PATTERN? name:MAPPING_NAME target:ID targetModifier:MODIFIER? targetPattern:PATTERN? properties:PROPERTY_MAPPING* {return {name,source, sourceModifier, sourcePattern, target, targetModifier, targetPattern, properties}}
-MAPPING_NAME = '<=' name:(@ID '=')? '>' {return name;}
+CLASS_MAPPING = source:ID sourceModifier:MODIFIER? sourcePattern:PATTERN? names:MAPPING_NAME target:ID targetModifier:MODIFIER? targetPattern:PATTERN? properties:PROPERTY_MAPPING* {return {...names,source, sourceModifier, sourcePattern, target, targetModifier, targetPattern, properties}}
+MAPPING_NAME = '<=' name:ID? correspondenceName:(':' @ID)? '='? '>' {return {name, correspondenceName};}
 
 PROPERTY_MAPPING = _ source:(TARGET_PROPERTY / TARGET_REFERENCE / REFERENCE_PATTERN) _ '<=>' _ target:(TARGET_PROPERTY / TARGET_REFERENCE / REFERENCE_PATTERN) _ valueMapping:VALUE_MAPPING? _ {return {source,target,valueMapping}}
 TARGET_PROPERTY = '.' target:STRICT_ID { return target;}
@@ -35,7 +35,7 @@ ID = _ id:STRICT_ID _ {return id;}
 
 VALUE = _ value:(STRING_VALUE / BOOLEAN_VALUE / NUMBER_VALUE / ENUM_VALUE / VALUE_ALTERNATIVES) _  { return value; }
 VALUE_ALTERNATIVES = '[' _ first:VALUE tail:(_ "," _ @VALUE _)* ']' { return (Array.isArray(tail) && tail.length > 0 ? [first, ...tail] : [first]);} 
-BOOLEAN_VALUE = value:('true' / 'false' / '0' / '1' / 'TRUE' / 'FALSE') { return (value == '1' || value.toLowerCase() == 'true') ? true : false; }
+BOOLEAN_VALUE = value:('true' / 'false' / 'TRUE' / 'FALSE') { return (value.toLowerCase() == 'true') ? true : false; }
 NUMBER_VALUE = value:([0-9]+('.'[0-9]+)?)  { return parseFloat(value.join('')); }
 STRING_VALUE = '"' value:([^"]*) '"' { return value.join(''); }
 ENUM_VALUE = value:ID { return value; }

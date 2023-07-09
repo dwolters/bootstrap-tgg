@@ -8,7 +8,7 @@ metamodel ClassInheritanceHierarchy {
 		.name : EString
 		-package(1..1)-> ClassPackage
 		-subClass(0..*)-> Clazz
-		-superClass(1..1)-> Clazz
+		-superClass(0..1)-> Clazz
 		<+>-attributes(0..*)->Attribute
 	}
 	

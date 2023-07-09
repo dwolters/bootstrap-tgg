@@ -134,9 +134,9 @@ export class Rule {
     return object
   }
 
-  createObjectForAssociationPattern (associationPattern: Association | AssociatedAttribute, originObject: RuleObject, defaultModifier: Modifier = Modifier.exist): RuleObject {
+  createObjectForAssociationPattern (associationPattern: Association | AssociatedAttribute, originObject: RuleObject, forceNewObject: boolean = false, defaultModifier: Modifier = Modifier.exist): RuleObject {
     const targetModifier = associationPattern.targetModifier || defaultModifier // TODO add modifier to rule is any
-    const associatedObject = this.createObjectForPattern(associationPattern.targetClass, targetModifier, originObject)
+    const associatedObject = this.createObjectForPattern(associationPattern.targetClass, targetModifier, forceNewObject, originObject)
     const create = Rule.determineAssociationCreate(originObject.create, associatedObject?.create)
     originObject.addObjectAssociationWithObject(associationPattern.associationName, associationPattern.associationPattern, associatedObject, create)
     associatedObject.addPattern(associationPattern.targetPattern)
@@ -148,7 +148,7 @@ export class Rule {
     const mm = childObject.getMetamodel()
     const parentClassName = parentAssociationPattern.targetClass
     const parentModifier = parentAssociationPattern.targetModifier || Modifier.exist // TODO add modifier to rule is any
-    const parentObject = this.createObjectForPattern(parentClassName, parentModifier, childObject, true)
+    const parentObject = this.createObjectForPattern(parentClassName, parentModifier, false, childObject, true)
     if (!parentObject) { return }
     const create = Rule.determineAssociationCreate(parentObject.create, childObject.create)
     parentObject.addObjectAssociationWithObject(parentAssociationPattern.associationName, parentAssociationPattern.associationPattern, childObject, create)
@@ -161,17 +161,18 @@ export class Rule {
     }
   }
 
-  private createObjectForPattern (className: string, objectModifier: Modifier, sourceObject: RuleObject, onlyParent: boolean = false): RuleObject {
+  private createObjectForPattern (className: string, objectModifier: Modifier, forceNewObject: boolean, sourceObject: RuleObject, onlyParent: boolean = false): RuleObject {
     const objects = sourceObject.isSource ? this.sourceObjects : this.targetObjects
     let associatedObject: RuleObject
-    if (onlyParent) {
-      associatedObject = objects.find(obj => (obj.isParent || (obj.isOrigin && !sourceObject.isOrigin)) && obj.class == className)
-    } else {
-      associatedObject = objects.find(obj => obj.name != sourceObject.name && obj.class == className)
+    if (!forceNewObject) {
+      if (onlyParent) {
+        associatedObject = objects.find(obj => (obj.isParent || (obj.isOrigin && !sourceObject.isOrigin)) && obj.class == className)
+      } else {
+        associatedObject = objects.find(obj => obj.name != sourceObject.name && obj.class == className)
+      }
+      // Ignore if both objects are the same since it would end up in the same patterns
+      if (associatedObject?.name == sourceObject.name) { return }
     }
-
-    // Ignore if both objects are the same since it would end up in the same patterns
-    if (associatedObject?.name == sourceObject.name) { return }
 
     if (associatedObject) {
       const create = associatedObject.create

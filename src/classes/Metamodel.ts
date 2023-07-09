@@ -125,6 +125,10 @@ export class Metamodel {
     return found
   }
 
+  isAnySubSuper (classNameA: string, classNameB: string): boolean {
+    return this.isSameOrSubClass(classNameA, classNameB) || this.isSameOrSubClass(classNameB, classNameA)
+  }
+
   isComposition (className: string, associationName: string): boolean {
     const mmAssociation = this.getAssociation(className, associationName)
     return mmAssociation.type == 'composition'

@@ -58,9 +58,20 @@ export class RuleObject {
     return this.associatedParentObjects.some(p => p.associationName === associationName)
   }
 
-  addPattern (pattern: Pattern | undefined): void { // TODO check compatibilit of pattern
+  addPattern (pattern: Pattern | undefined, disableAugmentation: boolean = false): void { // TODO check compatibilit of pattern
     const mm = this.getMetamodel()
     const parentPattern: Association[] = []
+    const cl = mm.getClass(this.class)
+    if (!pattern) { pattern = [] }
+    cl.associations?.forEach(association => {
+      const lower = association.lower
+      if (lower == 0 || this.rule.tgg.options.disableLowerBoundAugmentation || disableAugmentation) { return }
+      const current = pattern.filter(p => p.type == 'association' && p.associationName == association.name && mm.isAnySubSuper(p.targetClass, association.target)).length
+      for (let i = current; i < lower; i++) {
+        console.warn(`Adding implicit association for meet lower bound for assocation ${association.name} of class ${cl.name}`)
+        pattern.push({ type: 'association', associationName: association.name, targetClass: association.target, targetModifier: Modifier.exist, isOutgoing: true, explicit: false })
+      }
+    })
     pattern?.forEach(p => {
       if (p.type == 'attribute_value') {
         mm.getAttribute(this.class, p.name) // throws error if attribute does not exist
@@ -72,7 +83,8 @@ export class RuleObject {
       } else if (p.type == 'association') {
         if (p.isOutgoing) {
           if (!p.targetClass) { p.targetClass = mm.getAssociation(this.class, p.associationName).target }
-          this.rule.createObjectForAssociationPattern(p, this)
+          const multipleObjectsNeed = pattern.filter(p2 => p2.type == 'association' && p2.associationName == p.associationName && mm.isAnySubSuper(p.targetClass, p2.targetClass)).length > 1
+          this.rule.createObjectForAssociationPattern(p, this, multipleObjectsNeed)
         } else {
           if (!p.targetClass) {
             p.targetClass = mm.findParentClass(this.class, p.associationName)
@@ -81,9 +93,8 @@ export class RuleObject {
         }
       }
     })
-    const cl = mm.getClass(this.class)
     cl.partOf?.forEach(partOfRelation => {
-      if (!parentPattern.find(p => p.associationName == partOfRelation.association && p.targetClass == partOfRelation.class)) {
+      if (!disableAugmentation && !this.rule.tgg.options.disableCompositionAugmentation && !parentPattern.find(p => p.associationName == partOfRelation.association && p.targetClass == partOfRelation.class)) {
         parentPattern.push({ type: 'association', associationName: partOfRelation.association, targetClass: partOfRelation.class, targetModifier: Modifier.exist, isOutgoing: false, explicit: false })
       }
     })

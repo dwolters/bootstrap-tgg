@@ -1,0 +1,17 @@
+metamodel StateMachine {
+    StateMachine {        
+        .id: EString
+        <+>-states(0..*)->State
+        <+>-transitions(0..*)->StateTransition
+    }
+    State {
+        .id: EString
+        .isStart: EBoolean
+        .isEnd: EBoolean
+    }
+    StateTransition {
+        .input: EString
+        -to(1..1)->State
+        -from(1..1)->State
+    }
+}

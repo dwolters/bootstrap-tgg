@@ -14,12 +14,19 @@ export class TGG {
   private correspondences: Correspondence[]
   rules: Rule[]
   options: {
+    set: Array<{
+      sourceClass: string
+      associationName: string
+    }>
+    root: string[]
     keepCompositionRules: boolean
+    disableLowerBoundAugmentation: boolean
+    disableCompositionAugmentation: boolean
     excludeRules: string[]
     excludeCorrespondences: string[]
     excludeConstraints: string[]
     excludePatterns: string[]
-    noConstraints: boolean
+    constraints: string[]
   }
 
   constructor (sourceMetamodel: Metamodel, targetMetamodel: Metamodel) {
@@ -31,12 +38,16 @@ export class TGG {
     this.constraints = []
     this.patterns = []
     this.options = {
+      set: [],
+      root: [],
       keepCompositionRules: false,
+      disableLowerBoundAugmentation: false,
+      disableCompositionAugmentation: false,
       excludeRules: [],
       excludeCorrespondences: [],
       excludeConstraints: [],
       excludePatterns: [],
-      noConstraints: false
+      constraints: ['upperBounds', 'root', 'set']
     }
   }
 
@@ -56,6 +67,8 @@ export class TGG {
   }
 
   addCorrespondence (sourceClass: string, targetClass: string, name: string): void {
+    if (this.correspondences.find(c => c.name == name)) { return }
+
     const correspondence: Correspondence = {
       sourceClass,
       targetClass,
@@ -73,7 +86,7 @@ export class TGG {
     const applicableCorrespondences: Correspondence[] = []
     this.correspondences.forEach(correspondence => {
       if (this.sourceMetamodel.isSameOrSubClass(sourceClassName, correspondence.sourceClass) &&
-                this.targetMetamodel.isSameOrSubClass(targetClassName, correspondence.targetClass)) { applicableCorrespondences.push(correspondence) }
+        this.targetMetamodel.isSameOrSubClass(targetClassName, correspondence.targetClass)) { applicableCorrespondences.push(correspondence) }
     })
     return applicableCorrespondences
   }
@@ -82,7 +95,7 @@ export class TGG {
     const applicableCorrespondences: Correspondence[] = []
     this.correspondences.forEach(correspondence => {
       if (this.sourceMetamodel.isSameOrSubClass(correspondence.sourceClass, sourceClassName) &&
-                this.targetMetamodel.isSameOrSubClass(correspondence.targetClass, targetClassName)) { applicableCorrespondences.push(correspondence) }
+        this.targetMetamodel.isSameOrSubClass(correspondence.targetClass, targetClassName)) { applicableCorrespondences.push(correspondence) }
     })
     return applicableCorrespondences
   }
@@ -181,19 +194,38 @@ export class TGG {
       const targetObject = rule.targetObjects[0]
       const targetAssociation = targetObject.associatedObjects[0].associationName
       return (!this.sourceMetamodel.isComposition(sourceObject.class, sourceAssociation) &&
-                !this.targetMetamodel.isComposition(targetObject.class, targetAssociation))
+        !this.targetMetamodel.isComposition(targetObject.class, targetAssociation))
     })
     this.rules = rules
   }
 
   createContraints (): void {
     const classes = this.sourceMetamodel.classes.concat(this.targetMetamodel.classes)
+    if (this.options.constraints.includes('set')) {
+      this.options.set.forEach(e => {
+        const { sourceClass, associationName } = e
+        const association = this.sourceMetamodel.getAssociation(sourceClass, associationName, true) || this.targetMetamodel.getAssociation(sourceClass, associationName)
+        const targetClass = association.target
+        const name = `${sourceClass}_${associationName}IsSet`
+        const patternName = `NoDouble${targetClass}In${sourceClass}_${associationName}`
+        this.addConstraint({ type: 'ForbidContraint', name, patternName })
+        this.addPattern({ type: 'SetPattern', name: patternName, associationName, sourceClass, targetClass })
+      })
+    }
+    if (this.options.constraints.includes('root')) {
+      this.options.root.forEach(className => {
+        const name = `Single${className}`
+        const patternName = `NoDouble${className}`
+        this.addConstraint({ type: 'ForbidContraint', name, patternName })
+        this.addPattern({ type: 'RootPattern', name: patternName, class: className })
+      })
+    }
     classes.forEach(cl => {
       cl.associations?.forEach(ref => {
         const sourceClass = cl.name
         const associationName = ref.name
         const targetClass = ref.target
-        if (ref.lower > 0) {
+        if (ref.lower > 0 && this.options.constraints.includes('lowerBounds')) {
           const bound = ref.lower
           const name = `${sourceClass}HasMin${bound}${targetClass}As${associationName}`
           const premiseName = `Exist${sourceClass}`
@@ -202,7 +234,7 @@ export class TGG {
           this.addPattern({ type: 'ExistPattern', name: premiseName, class: sourceClass })
           this.addPattern({ type: 'BoundPattern', name: conclusionName, sourceClass, targetClass, associationName, bound })
         }
-        if (ref.upper) {
+        if (ref.upper && this.options.constraints.includes('upperBounds')) {
           const bound = ref.upper + 1
           const name = `${sourceClass}HasMax${bound - 1}${targetClass}As${associationName}`
           const patternName = `${sourceClass}Has${bound}${targetClass}As${associationName}`
@@ -218,10 +250,6 @@ export class TGG {
     this.rules = this.rules.filter(c => !this.options.excludeRules.includes(c.name))
     this.constraints = this.constraints.filter(c => !this.options.excludeConstraints.includes(c.name))
     this.patterns = this.patterns.filter(c => !this.options.excludePatterns.includes(c.name))
-    if (this.options.noConstraints) {
-      this.constraints = []
-      this.patterns = []
-    }
   }
 
   generateTGGString (includeMetamodels: boolean = true): string {

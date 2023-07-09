@@ -3,54 +3,84 @@
         "sourceMetamodelFile": "metamodels/Families.msl",
         "targetMetamodelFile": "metamodels/Persons.msl",
         "mappingFile": "mappings/FamilyToPerson.etb",
-        "outputFile": "FamilyToPerson.msl"
+        "outputFile": "FamilyToPerson.msl",
+        "name": "FamilyToPerson"
     },
     {
         "sourceMetamodelFile": "metamodels/Rectangles.msl",
         "targetMetamodelFile": "metamodels/Composite.msl",
         "mappingFile": "mappings/RectanglesToComposite.etb",
-        "outputFile": "RectanglesToComposite.msl"
+        "outputFile": "RectanglesToComposite.msl",
+        "name": "RectanglesToComposite"
     },
     {
         "sourceMetamodelFile": "metamodels/SimpleDoc.msl",
         "targetMetamodelFile": "metamodels/SimpleJava.msl",
         "mappingFile": "mappings/DocToJava.etb",
-        "outputFile": "DocToJava.msl"
+        "outputFile": "DocToJava.msl",
+        "name": "DocToJava"
+    },
+    {
+        "sourceMetamodelFile": "metamodels/SimpleDoc.msl",
+        "targetMetamodelFile": "metamodels/SimpleJava.msl",
+        "mappingFile": "mappings/DocToJavaTweaked.etb",
+        "outputFile": "DocToJavaTweaked.msl",
+        "name": "DocToJavaTweaked"
     },
     {
         "sourceMetamodelFile": "metamodels/ClassInheritanceHierarchy.msl",
         "targetMetamodelFile": "metamodels/Database.msl",
         "mappingFile": "mappings/ClassToDB.etb",
-        "outputFile": "ClassToDB.msl"
+        "outputFile": "ClassToDB.msl",
+        "name": "ClassToDB"
     },
     {
         "sourceMetamodelFile": "metamodels/MiroMetamodel.msl",
         "targetMetamodelFile": "metamodels/UseCaseDiagramMetamodel.msl",
         "mappingFile": "mappings/MiroToUCD.etb",
-        "outputFile": "MiroToUCD.msl"
+        "outputFile": "MiroToUCD.msl",
+        "name": "MiroToUCD"
     },
     {
         "sourceMetamodelFile": "metamodels/Company.msl",
         "targetMetamodelFile": "metamodels/IT.msl",
         "mappingFile": "mappings/CompanyToIT.etb",
-        "outputFile": "CompanyToIT.msl"
+        "outputFile": "CompanyToIT.msl",
+        "name": "CompanyToIT"
     },
     {
         "sourceMetamodelFile": "metamodels/Facebook.msl",
         "targetMetamodelFile": "metamodels/Instagram.msl",
         "mappingFile": "mappings/FacebookToInstagram.etb",
-        "outputFile": "FacebookToInstagram.msl"
+        "outputFile": "FacebookToInstagram.msl",
+        "name": "FacebookToInstagram"
     },
     {
         "sourceMetamodelFile": "metamodels/Requirements.msl",
         "targetMetamodelFile": "metamodels/Architecture.msl",
         "mappingFile": "mappings/RequirementsCoverage.etb",
-        "outputFile": "RequirementsCoverage.msl"
+        "outputFile": "RequirementsCoverage.msl",
+        "name": "RequirementsCoverage"
     },
     {
         "sourceMetamodelFile": "metamodels/MiroSimple.msl",
         "targetMetamodelFile": "metamodels/PEPMLSimple.msl",
         "mappingFile": "mappings/MiroToPEPMLSimple.etb",
-        "outputFile": "MiroToPEPMLSimple.msl"
+        "outputFile": "MiroToPEPMLSimple.msl",
+        "name": "MiroToPEPMLSimple"
+    },
+    {
+        "sourceMetamodelFile": "metamodels/StatemachineExcplicitTransition.msl",
+        "targetMetamodelFile": "metamodels/PetriNetExplicitTransition.msl",
+        "mappingFile": "mappings/StateMachineToPetriNetExplicit.etb",
+        "outputFile": "StateMachineToPetriNetExplicit.msl",
+        "name": "StateMachineToPetriNetExplicit"
+    },
+    {
+        "sourceMetamodelFile": "metamodels/Statemachine.msl",
+        "targetMetamodelFile": "metamodels/PetriNet.msl",
+        "mappingFile": "mappings/StateMachineToPetriNet.etb",
+        "outputFile": "StateMachineToPetriNet.msl",
+        "name": "StateMachineToPetriNet"
     }
 ]

@@ -7,6 +7,6 @@ Employee{<-employee-CEO} <=> PC
 Employee{<-employee-CEO} <=> Laptop
 .name <=> .name
 
-Admin{-ceo} <=> Router
+Admin <=> Router
 .name <=> .name
 .name <=> -network->Network.name

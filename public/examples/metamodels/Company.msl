@@ -13,7 +13,7 @@ metamodel Company {
 	
 	Admin {
 		.name : EString
-		-ceo(0..1)-> CEO
+		-ceo(1..1)-> CEO
 	}
 	
 	Employee {

@@ -1,0 +1,11 @@
+:excludeRules=Folder2PackageRootFolder,RootFolder2Package;
+Folder <=RootFolder2Package=> Package
+
+Folder <=> Package
+.name <=> .name
+-docs->.name <=> .name
+-subFolders <=> -subPackages
+-docs <=> -clazzes
+
+Doc <=> Clazz
+.name <=> .name

@@ -1,0 +1,14 @@
+metamodel StateMachine {
+    StateMachine {        
+        .id: EString
+        <+>-states(0..*)->State
+    }
+    State {
+        .id: EString
+        .isStart: EBoolean
+        .isEnd: EBoolean
+        -to(0..*)->State {
+           .input: EString
+        }
+    }
+}
