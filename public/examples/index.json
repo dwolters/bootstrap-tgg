@@ -82,5 +82,12 @@
         "mappingFile": "mappings/StateMachineToPetriNet.etb",
         "outputFile": "StateMachineToPetriNet.msl",
         "name": "StateMachineToPetriNet"
+    },
+    {
+        "sourceMetamodelFile": "metamodels/Miro.msl",
+        "targetMetamodelFile": "metamodels/PEPML.msl",
+        "mappingFile": "mappings/MiroToPEPML.etb",
+        "outputFile": "MiroToPEPML.msl",
+        "name": "MiroToPEPML"
     }
 ]

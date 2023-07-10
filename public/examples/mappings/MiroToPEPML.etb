@@ -1,0 +1,20 @@
+:set=Board.items;
+:root=Board,EducationProgramme;
+
+Circle <=Circle2Topic=> Topic
+.content <=> .name
+.borderStyle <=> .isOptional
+["dashed"=true,"solid"=true]
+
+Image{.title="educator"} <=> Educator
+-surroundedBy{.area=SOUTH}->Text.content <=> .name
+-connectedTo <=> -familiarWith
+
+Board <=> EducationProgramme
+-items <=> -entities
+
+Rectangle<=>EducationComponent
+.content <=> .name
+-contains <=> -contains
+-surroundedBy{.area=["NORTH","SOUTH"]} <=> -parallelTo
+-surroundedBy{.area="WEST"} <=> -before
