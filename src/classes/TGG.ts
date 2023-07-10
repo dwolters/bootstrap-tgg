@@ -100,6 +100,14 @@ export class TGG {
     return applicableCorrespondences
   }
 
+  generateRootVariants (): void {
+    const rules: Rule[] = []
+    this.rules.forEach(rule => {
+      rules.push(...rule.generateRootVariants())
+    })
+    this.rules = rules
+  }
+
   applyAssociationMappings (): void {
     this.rules.forEach(associationMapping => {
       if (associationMapping.isAssociationMapping) {
@@ -164,7 +172,7 @@ export class TGG {
         tgtObj.create = srcObj.create
 
         if (srcObj.hide) {
-          if (tgtObj.hide) { rule.parameters = rule.parameters.filter(m => m.type == 'boolean' && m.name != tgtObj.hide) }
+          if (tgtObj.hide) { rule.parameters = rule.parameters.filter(m => m.valueType == 'boolean' && m.name != tgtObj.hide) }
           tgtObj.hide = srcObj.hide
         } else if (tgtObj.hide) {
           srcObj.hide = tgtObj.hide

@@ -109,12 +109,13 @@ export interface CorrespondenceObject {
 export type RuleParameter = BooleanRuleParameter | IndexRuleParameter
 
 export interface BooleanRuleParameter {
-  type: 'boolean'
+  valueType: 'boolean'
+  type: string
   name: string
 }
 
 export interface IndexRuleParameter {
-  type: 'index'
+  valueType: 'index'
   name: string
   names: string[]
 }

@@ -1,4 +1,4 @@
-import { type Create, Modifier, type CorrespondenceObject, type RuleParameter, type Association, type AssociatedAttribute } from '../types/mapping'
+import { type Create, Modifier, type CorrespondenceObject, type RuleParameter, type Association, type AssociatedAttribute, type AttributeValueAssignment, type AttributeAssignment } from '../types/mapping'
 import { RuleObject } from './RuleObject'
 import { type TGG } from './TGG'
 import NameGenerator from './NameGenerator'
@@ -62,13 +62,13 @@ export class Rule {
     if (prepend) { this.correspondences.unshift(correspondenceObject) } else { this.correspondences.push(correspondenceObject) }
   }
 
-  addBooleanParameter (name: string): void {
-    this.parameters.push({ name, type: 'boolean' })
+  addBooleanParameter (name: string, type: 'root' | 'create'): void {
+    this.parameters.push({ name, type, valueType: 'boolean' })
   }
 
   addIndexParameter (names: any[]): string {
     const name = NameGenerator.generateIndexParameterIdentifier()
-    this.parameters.push({ name, names, type: 'index' })
+    this.parameters.push({ name, names, valueType: 'index' })
     return name
   }
 
@@ -85,7 +85,15 @@ export class Rule {
       !this.sourceObjects.find(o => o.name == cor.sourceObjectName).hide &&
       !this.targetObjects.find(o => o.name == cor.targetObjectName).hide)
     this.sourceObjects = this.sourceObjects.filter(obj => !obj.hide)
+    this.removeAssociationToNonExistentObjects(this.sourceObjects)
     this.targetObjects = this.targetObjects.filter(obj => !obj.hide)
+    this.removeAssociationToNonExistentObjects(this.targetObjects)
+  }
+
+  removeAssociationToNonExistentObjects (objects: RuleObject[]): void {
+    objects.forEach(object => {
+      object.associatedObjects = object.associatedObjects.filter(aObj => objects.find(o => o.name == aObj.objectName))
+    })
   }
 
   findSourceObjects (
@@ -156,7 +164,7 @@ export class Rule {
 
     if (mm.isSameOrSubClass(parentClassName, childObject.class) && parentObject.getMetamodel().getAssociation(parentClassName, parentAssociationPattern.associationName)?.type == 'composition') {
       const hide = NameGenerator.generateRootModifierName(parentClassName, this.name)
-      this.addBooleanParameter(hide)
+      this.addBooleanParameter(hide, 'root')
       parentObject.hide = hide
     }
   }
@@ -209,7 +217,7 @@ export class Rule {
       return false
     }
     const create = NameGenerator.generateModifierName(className, this.name)
-    this.addBooleanParameter(create)
+    this.addBooleanParameter(create, 'create')
     return create
   }
 
@@ -222,11 +230,22 @@ export class Rule {
   }
 
   generateRuleVariants (): Rule[] {
+    if (this.parameters.length == 0) { return [this] }
     const rules: Rule[] = []
     const valueCombinations = this.generateParameterValueCombinations()
     valueCombinations.forEach(combination => {
       rules.push(this.cloneRuleAndSetParameterValues(combination))
     })
+    return rules
+  }
+
+  generateRootVariants (): Rule[] {
+    const rootParameters = this.parameters.filter(p => p.valueType == 'boolean' && p.type == 'root')
+    if (rootParameters.length == 0) { return [this] }
+    const nonRootParameters = this.parameters.filter(p => p.valueType != 'boolean' || p.type != 'root')
+    this.parameters = rootParameters
+    const rules = this.generateRuleVariants()
+    rules.forEach(rule => { rule.parameters = nonRootParameters })
     return rules
   }
 
@@ -295,14 +314,14 @@ export class Rule {
     const valueCombinations: Array<Array<number | boolean>> = [[]]
 
     for (const ruleParameter of this.parameters) {
-      if (ruleParameter.type === 'boolean') {
+      if (ruleParameter.valueType === 'boolean') {
         const newCombinations: Array<Array<number | boolean>> = []
         for (const combination of valueCombinations) {
           newCombinations.push([...combination, true])
           newCombinations.push([...combination, false])
         }
         valueCombinations.splice(0, valueCombinations.length, ...newCombinations)
-      } else if (ruleParameter.type === 'index') {
+      } else if (ruleParameter.valueType === 'index') {
         const newCombinations: Array<Array<number | boolean>> = []
         for (const combination of valueCombinations) {
           for (let i = 0; i < ruleParameter.names.length; i++) {
@@ -320,7 +339,7 @@ export class Rule {
     const clonedRule = this.clone()
     clonedRule.replaceParameters(combination)
     this.parameters.forEach((parameter, index) => {
-      if (parameter.type == 'boolean' && !combination[index]) { clonedRule.name += parameter.name } else if (parameter.type == 'index') {
+      if (parameter.valueType == 'boolean' && !combination[index]) { clonedRule.name += parameter.name } else if (parameter.valueType == 'index') {
         clonedRule.name += parameter.names[combination[index] as number]
       }
     })
@@ -341,34 +360,41 @@ export class Rule {
       this.replaceCreate(obj, combination)
       this.replaceHide(obj, combination)
       obj.attributes.forEach(attribute => {
-        if (attribute.type == 'attribute_value') {
-          const parameterIndex = this.parameters.findIndex(p => p.type == 'index' && p.name == attribute.parameter)
-          if (parameterIndex >= 0) {
-            attribute.value = attribute.value[combination[parameterIndex] as number]
-          }
-        }
+        this.replaceAttributeValueMapping(attribute, combination)
       })
       obj.associatedObjects.forEach(association => {
+        association.associationPattern?.forEach(attribute => {
+          this.replaceAttributeValueMapping(attribute, combination)
+          // Only attribute values can in a association pattern. No need to check other types
+        })
         this.replaceCreate(association, combination)
       })
     })
   }
 
+  private replaceAttributeValueMapping (attribute: AttributeAssignment | AttributeValueAssignment | Association, combination: Array<number | boolean>): void {
+    if (attribute.type != 'attribute_value') { return }
+    const parameterIndex = this.parameters.findIndex(p => p.valueType == 'index' && p.name == attribute.parameter)
+    if (parameterIndex >= 0) {
+      attribute.value = attribute.value[combination[parameterIndex] as number]
+    }
+  }
+
   private replaceHide (obj: any, combination: Array<number | boolean>): void {
     if (obj.hide && typeof obj.hide === 'string') {
-      const i = this.parameters.findIndex(p => p.type == 'boolean' && p.name == obj.hide)
+      const i = this.parameters.findIndex(p => p.valueType == 'boolean' && p.name == obj.hide)
       if (i >= 0) { obj.hide = !combination[i] }
     }
   }
 
   private replaceCreate (obj: any, combination: Array<number | boolean>): void {
     if (typeof obj.create === 'string') {
-      const i = this.parameters.findIndex(p => p.type == 'boolean' && p.name == obj.create)
+      const i = this.parameters.findIndex(p => p.valueType == 'boolean' && p.name == obj.create)
       if (i >= 0) { obj.create = combination[i] }
     } else if (Array.isArray(obj.create)) {
       let create = false
       obj.create.forEach(flag => {
-        const i = this.parameters.findIndex(p => p.type == 'boolean' && p.name == flag)
+        const i = this.parameters.findIndex(p => p.valueType == 'boolean' && p.name == flag)
         if (i < 0) { throw new Error('Unknown flag: ' + flag) }
         create = create || combination[i] as boolean
       })

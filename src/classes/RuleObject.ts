@@ -148,6 +148,10 @@ export class RuleObject {
     associationPattern?.forEach(p => {
       if (p.type == 'attribute_value') {
         mm.getAssocationAttribute(this.class, associationName, p.name) // throws error if attribute does not exist
+        if (Array.isArray(p.value)) {
+          const paramID = this.rule.addIndexParameter(p.value.map(v => '_' + p.name + 'EQ' + v))
+          p.parameter = paramID
+        }
       }
       // Only attribute values can in a association pattern. No need to check other types
     })

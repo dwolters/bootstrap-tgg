@@ -33,8 +33,9 @@ STRICT_ID = id:([A-Za-z0-9_])+ {return id.join('');}
 COMPOSITE_ID = id1:STRICT_ID id2:('.' @STRICT_ID)? {return (id2 ? id1 + '.' + id2 : id1);}
 ID = _ id:STRICT_ID _ {return id;}
 
-VALUE = _ value:(STRING_VALUE / BOOLEAN_VALUE / NUMBER_VALUE / ENUM_VALUE / VALUE_ALTERNATIVES) _  { return value; }
-VALUE_ALTERNATIVES = '[' _ first:VALUE tail:(_ "," _ @VALUE _)* ']' { return (Array.isArray(tail) && tail.length > 0 ? [first, ...tail] : [first]);} 
+VALUE = _ value:(PURE_VALUE / VALUE_ALTERNATIVES) _  { return value; }
+PURE_VALUE = value:(STRING_VALUE / BOOLEAN_VALUE / NUMBER_VALUE / ENUM_VALUE)  { return value; }
+VALUE_ALTERNATIVES = '[' _ first:PURE_VALUE tail:(_ "," _ @PURE_VALUE _)* ']' { return (Array.isArray(tail) && tail.length > 0 ? [first, ...tail] : [first]);} 
 BOOLEAN_VALUE = value:('true' / 'false' / 'TRUE' / 'FALSE') { return (value.toLowerCase() == 'true') ? true : false; }
 NUMBER_VALUE = value:([0-9]+('.'[0-9]+)?)  { return parseFloat(value.join('')); }
 STRING_VALUE = '"' value:([^"]*) '"' { return value.join(''); }
