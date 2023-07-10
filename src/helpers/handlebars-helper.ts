@@ -88,10 +88,9 @@ Handlebars.registerHelper('pattern', function (pattern: ConstraintPattern) {
   } else if (pattern.type == 'SetPattern') {
     str += `pattern ${pattern.name} {\n\ts: ${pattern.sourceClass} {\n`
     str += `\t\t-${pattern.associationName}->t1\n`
-    str += `\t\t-${pattern.associationName}->t2\n`
+    str += `\t\t-${pattern.associationName}->t1\n`
     str += '\t}\n'
     str += `\tt1: ${pattern.targetClass}\n`
-    str += `\tt2: ${pattern.targetClass}\n`
     str += '}\n'
   }
   return new Handlebars.SafeString(str)
