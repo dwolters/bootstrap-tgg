@@ -81,9 +81,16 @@ export class Rule {
   }
 
   removeHiddenObjects (): void {
-    this.correspondences = this.correspondences.filter(cor =>
-      !this.sourceObjects.find(o => o.name == cor.sourceObjectName).hide &&
-      !this.targetObjects.find(o => o.name == cor.targetObjectName).hide)
+    const hideCorrespondences = []
+    this.correspondences.forEach(cor => {
+      const sourceObject = this.sourceObjects.find(o => o.name == cor.sourceObjectName)
+      const targetObject = this.targetObjects.find(o => o.name == cor.targetObjectName)
+      if (sourceObject.hide || targetObject.hide) {
+        hideCorrespondences.push(cor)
+        sourceObject.hide = true
+        targetObject.hide = true
+      }
+    })
     this.sourceObjects = this.sourceObjects.filter(obj => !obj.hide)
     this.removeAssociationToNonExistentObjects(this.sourceObjects)
     this.targetObjects = this.targetObjects.filter(obj => !obj.hide)
@@ -240,9 +247,17 @@ export class Rule {
   }
 
   generateRootVariants (): Rule[] {
-    const rootParameters = this.parameters.filter(p => p.valueType == 'boolean' && p.type == 'root')
+    let rootParameters = this.parameters.filter(p => p.valueType == 'boolean' && p.type == 'root')
     if (rootParameters.length == 0) { return [this] }
     const nonRootParameters = this.parameters.filter(p => p.valueType != 'boolean' || p.type != 'root')
+    this.correspondences.forEach(correspondence => {
+      const sourceObject = this.sourceObjects.find(o => o.name == correspondence.sourceObjectName)
+      const targetObject = this.sourceObjects.find(o => o.name == correspondence.targetObjectName)
+      if (sourceObject.hide && targetObject) {
+        rootParameters = rootParameters.filter(p => p.name != targetObject.hide)
+        targetObject.hide = sourceObject.hide
+      }
+    })
     this.parameters = rootParameters
     const rules = this.generateRuleVariants()
     rules.forEach(rule => { rule.parameters = nonRootParameters })

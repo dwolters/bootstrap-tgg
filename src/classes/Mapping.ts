@@ -18,8 +18,6 @@ export default class MappingProcessor {
 
     this.generateRules(mapping)
 
-    this.tgg.generateRootVariants()
-
     this.tgg.applyAssociationMappings()
 
     this.tgg.inferCorrespondences()

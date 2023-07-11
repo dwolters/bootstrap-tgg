@@ -11,7 +11,7 @@ export class RuleObject {
   associatedParentObjects: AssociatedObject[]
   inCorrespondence: boolean
   create: Create
-  hide?: string
+  hide?: string | boolean
   isParent: boolean
   isOrigin: boolean
   isSource: boolean
